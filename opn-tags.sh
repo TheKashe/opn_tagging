@@ -252,7 +252,7 @@ find_subcompartments()
     while [[ $COMPARTMENTS_NEXT_PAGE != "null" ]]
     do
         oci iam compartment list -c $COMPARTMENT_ID ${COMPARTMENTS_NEXT_PAGE:+--page} $COMPARTMENTS_NEXT_PAGE --access-level ACCESSIBLE > $JSON_OUT
-        jq '.data[].id' $JSON_OUT >> $LIST_OUT
+        jq -r '.data[].id' $JSON_OUT >> $LIST_OUT
         #it seems we get empty file if there are no subcompartments, which breaks paging logic
         if [[ ! -s $JSON_OUT ]]
         then 
@@ -262,8 +262,6 @@ find_subcompartments()
         fi
         
     done
-    #remove " char from list
-    sed -i '' 's/["]//g' $LIST_OUT
 }
 
 clear_all_opn_tags()
