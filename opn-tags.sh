@@ -213,7 +213,7 @@ find_and_tag_resources_in_compartment(){
     local PARTNER_ID=$2
     local OPPY_ID=$3
     local WORKLOAD_NAME=$4
-    local RESOURCES_JSON="resources_part.json"
+    local RESOURCES_JSON="resources_part.$COMPARTMENT_ID.json"
     unset OPC_NEXT_PAGE
    
     echo ""
