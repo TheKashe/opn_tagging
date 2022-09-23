@@ -131,7 +131,7 @@ tag_resources()
     oci iam tag bulk-edit -c $COMPARTMENT_ID --resources "file://${RESOURCES_JSON}" --bulk-edit-operations \
     '[{
         "definedTags": {
-        "OPN": {
+        '\""$TAG_NAMESPACE_NAME\""': {
             "PartnerID"     : '\""$PARTNER_ID\""',
             "OpportunityID" : '\""$OPPY_ID\""',
             "Workload"     : '\""$WORKLOAD_NAME\""'
@@ -183,7 +183,12 @@ find_resources_in_compartment(){
                       | select( ."resource-type" != "LoadBalancer")   
                       | select( ."resource-type" != "PluggableDatabase")    
                       | select( ."resource-type" != "ContainerRepo")
-                      | select( ."resource-type" != "Bastion")    
+                      | select( ."resource-type" != "Bastion") 
+                      | select( ."resource-type" != "Log")  
+                      | select( ."resource-type" != "LogGroup")  
+                      | select( ."resource-type" != "GoldenGateDatabaseRegistration")
+                      | select( ."resource-type" != "GoldenGateDeploymentBackup")
+                      | select( ."resource-type" != "GoldenGateDeployment")
                       | {id:.identifier,resourceType:."resource-type"}' $SEARCH_OUT | jq -s '.' > $RESOURCES_JSON
     
     #3. opc next page is stored into a global var
@@ -227,8 +232,7 @@ find_and_tag_resources_in_compartment(){
 
     #2. find all subcompartments of this compartments and recursivelly call self for each sub
     find_subcompartments $COMPARTMENT_ID
-    local SUBCOMPS=$(cat subcompartments.${COMPARTMENT_ID}.list)
-    for SC in $SUBCOMPS
+    cat subcompartments.${COMPARTMENT_ID}.list | while read SC
     do
         echo "next compartment: $SC"
         find_and_tag_resources_in_compartment $SC $PARTNER_ID $OPPY_ID "$WORKLOAD_NAME"
